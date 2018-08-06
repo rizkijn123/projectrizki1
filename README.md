@@ -1,2 +1,2 @@
-tampilan web bisa lihat di http://project.vipbloodlust.tk/
+tampilan web bisa lihat di http://project.vipbloodlust.tk/ <br>
 link diatas untuk melihat tampilan web saja,web diatas belum tersabung ke database...
