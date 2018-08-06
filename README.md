@@ -1,1 +1,2 @@
-# projectrizki1
+tampilan web bisa lihat di http://project.vipbloodlust.tk/
+link diatas untuk melihat tampilan web saja,web diatas belum tersabung ke database...
