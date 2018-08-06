@@ -1,22 +1,37 @@
 'use strict';
 
-// Tests specific to the API exposed inside the hljs object.
-// Right now, that only includes tests for several common regular expressions.
-require('./api');
+let bluebird = require('bluebird');
+let fs       = bluebird.promisifyAll(require('fs'));
+let hljs     = require('../../build');
+let path     = require('path');
+let utility  = require('../utility');
 
-// Tests for auto detection of languages via `highlightAuto`.
-require('./detect');
+function testAutoDetection(language) {
+  const languagePath = utility.buildPath('detect', language);
 
-// HTML markup tests for particular languages. Usually when there is an
-// incorrect highlighting of one language, once the bug get fixed, the
-// expected markup will be added into the `test/markup` folder to keep
-// theses highlighting errors from cropping up again.
-require('./markup');
+  it(`should have test for ${language}`, function() {
+    return fs.statAsync(languagePath)
+      .then(path => path.isDirectory().should.be.true);
+  });
 
-// Tests meant for the browser only. Using the `test/fixtures/index.html` file
-// along with `jsdom` these tests check for things like: custom markup already
-// existing in the code being highlighted, blocks that disable highlighting,
-// and several other cases. Do note that the `test/fixtures/index.html` file
-// isn't actually used to test inside a browser but `jsdom` acts as a virtual
-// browser inside of node.js and runs together with all the other tests.
-require('./special');
+  it(`should be detected as ${language}`, function() {
+    return fs.readdirAsync(languagePath)
+      .map(function(example) {
+        const filename = path.join(languagePath, example);
+
+        return fs.readFileAsync(filename, 'utf-8');
+      })
+      .each(function(content) {
+        const expected = language,
+              actual   = hljs.highlightAuto(content).language;
+
+        actual.should.equal(expected);
+      });
+  });
+}
+
+describe('hljs.highlightAuto()', function() {
+  const languages = hljs.listLanguages();
+
+  languages.forEach(testAutoDetection);
+});
